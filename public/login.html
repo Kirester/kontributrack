@@ -3,44 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="KontribuTrack - Officer Login">
-  <title>KontribuTrack — Officer Login</title>
+  <meta name="description" content="KontribuTrack - Community Association Treasurer Login Portal">
+  <title>KontribuTrack — Officer Login Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-body">
-  <main class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <h1 class="brand-title">KontribuTrack</h1>
-        <p class="brand-subtitle">Association Treasurer Portal</p>
+  <div class="login-page-wrapper">
+    <!-- Left Panel: Warm Community Branding -->
+    <aside class="login-brand-panel">
+      <div class="brand-panel-content">
+        <div class="brand-header-group">
+          <h1 class="brand-logo">KontribuTrack</h1>
+          <p class="brand-tagline">Transparent Financial Tracking for Your Community Association</p>
+        </div>
+
+        <div class="brand-features">
+          <div class="feature-item">
+            <span class="feature-icon">🛡️</span>
+            <div>
+              <strong>Encrypted Session Security</strong>
+              <p>Protected officer logins with bcrypt password hashing.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">📋</span>
+            <div>
+              <strong>Automatic Audit Trails</strong>
+              <p>Every payment record is tied directly to the officer logging it.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🤝</span>
+            <div>
+              <strong>Member Self-Check Ready</strong>
+              <p>Isolated self-check verification for complete transparency.</p>
+            </div>
+          </div>
+        </div>
+
+        <footer class="brand-footer">
+          <p>KontribuTrack Capstone System — Keeping Community Dues Honest & Clear</p>
+        </footer>
       </div>
+    </aside>
 
-      <form id="login-form" class="login-form">
-        <div class="form-group">
-          <label for="username">Officer Username</label>
-          <input type="text" id="username" required autocomplete="username" placeholder="e.g. admin" autofocus>
+    <!-- Right Panel: Accessible Login Form -->
+    <main class="login-form-panel">
+      <div class="form-card-wrapper">
+        <div class="form-header">
+          <h2>Officer Login</h2>
+          <p class="form-subtitle">Enter your credentials to access the treasurer portal</p>
         </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
-        </div>
+        <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="username">Officer Username *</label>
+            <input type="text" id="username" required autocomplete="username" placeholder="e.g. admin" class="input-lg" autofocus>
+          </div>
 
-        <button type="submit" class="btn btn-primary btn-block" id="btn-login">
-          Log In to Portal
-        </button>
-      </form>
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••" class="input-lg">
+          </div>
 
-      <div id="login-alert" class="alert-msg"></div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login">
+            Log In to Portal
+          </button>
+        </form>
 
-      <footer class="login-footer">
-        <p>KontribuTrack — Secure Community Financial Tracking</p>
-      </footer>
-    </div>
-  </main>
+        <div id="login-alert" class="alert-msg"></div>
+      </div>
+    </main>
+  </div>
 
   <script src="login.js"></script>
 </body>
