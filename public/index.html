@@ -3,50 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="KontribuTrack - Treasurer and Officer Dashboard for managing member contributions and payment status.">
+  <meta name="description" content="KontribuTrack - Treasurer and Officer Portal for managing community member contributions.">
   <title>KontribuTrack — Officer Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Header -->
   <header class="app-header">
     <div class="container header-container">
-      <div class="logo-group">
-        <div class="logo-icon">₱</div>
-        <div>
-          <h1>KontribuTrack</h1>
-          <p class="subtitle">Officer & Treasurer Dashboard</p>
-        </div>
+      <div class="brand-group">
+        <h1 class="brand-title">KontribuTrack</h1>
+        <span class="brand-tag">Community Treasurer Portal</span>
       </div>
-      <div class="officer-badge">
-        <span class="dot"></span> Logged as Officer
+      <div class="officer-controls">
+        <div class="officer-badge">
+          <span class="dot"></span>
+          <span>Logged as: <strong id="officer-name-display">Officer</strong></span>
+        </div>
+        <button class="btn btn-outline-danger btn-sm" id="btn-logout">Logout</button>
       </div>
     </div>
   </header>
 
   <main class="container main-content">
-    <!-- Top Stats Banner -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">Total Members</span>
-        <span class="stat-value" id="stat-total-members">0</span>
+    <!-- Compact Summary Bar (Replaces 3 standalone card boxes) -->
+    <div class="summary-bar">
+      <div class="summary-item">
+        <span class="summary-label">Total Members</span>
+        <span class="summary-value" id="stat-total-members">0</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Paid This Month</span>
-        <span class="stat-value text-success" id="stat-paid-count">0</span>
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <span class="summary-label">Paid This Month</span>
+        <span class="summary-value text-success" id="stat-paid-count">0</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Unpaid This Month</span>
-        <span class="stat-value text-danger" id="stat-unpaid-count">0</span>
+      <div class="summary-divider"></div>
+      <div class="summary-item">
+        <span class="summary-label">Unpaid This Month</span>
+        <span class="summary-value text-danger" id="stat-unpaid-count">0</span>
       </div>
     </div>
 
+    <!-- Main Dashboard Content Grid -->
     <div class="dashboard-grid">
-      <!-- Form Card: Add Member -->
+      <!-- Add Member Section -->
       <section class="card form-card">
-        <h2>Add New Member</h2>
+        <h2 class="card-title">Add New Member</h2>
         <form id="add-member-form">
           <div class="form-group">
             <label for="member-name">Full Name *</label>
@@ -66,21 +71,21 @@
           <div class="form-group">
             <label for="member-pin">Self-Check PIN (4+ digits) *</label>
             <input type="password" id="member-pin" required minlength="4" placeholder="••••">
-            <small class="help-text">Stored securely with bcrypt hash</small>
+            <small class="help-text">PIN is hashed securely with bcrypt</small>
           </div>
 
           <button type="submit" class="btn btn-primary" id="btn-add-member">
-            + Add Member
+            + Register Member
           </button>
         </form>
         <div id="add-member-msg" class="alert-msg"></div>
       </section>
 
-      <!-- Table Card: Members & Payment Status -->
+      <!-- Member Roster Table -->
       <section class="card table-card">
         <div class="card-header">
-          <h2>Member Roster & Monthly Status</h2>
-          <button class="btn btn-secondary btn-sm" id="btn-refresh">Refresh List</button>
+          <h2 class="card-title">Member Roster & Monthly Dues</h2>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh">Refresh Roster</button>
         </div>
 
         <div class="table-responsive">
@@ -91,13 +96,13 @@
                 <th>Member Name</th>
                 <th>Contact</th>
                 <th>Monthly Due</th>
-                <th>Current Month Status</th>
+                <th>Current Status</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="members-table-body">
               <tr>
-                <td colspan="6" class="text-center loading-text">Loading members...</td>
+                <td colspan="6" class="text-center loading-text">Loading member records...</td>
               </tr>
             </tbody>
           </table>
@@ -106,23 +111,23 @@
     </div>
   </main>
 
-  <!-- Modal for Logging Payment -->
+  <!-- Payment Modal -->
   <div class="modal-overlay" id="payment-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="modal-title">Log Payment</h3>
+        <h3>Log Payment Record</h3>
         <button class="modal-close" id="modal-close-btn">&times;</button>
       </div>
       <form id="payment-form">
         <input type="hidden" id="pay-member-id">
 
         <div class="form-group">
-          <label>Member</label>
+          <label>Member Name</label>
           <input type="text" id="pay-member-name" readonly class="input-readonly">
         </div>
 
         <div class="form-group">
-          <label for="pay-amount">Amount (₱) *</label>
+          <label for="pay-amount">Amount Paid (₱) *</label>
           <input type="number" id="pay-amount" required step="0.01" min="1">
         </div>
 
@@ -131,16 +136,11 @@
           <input type="date" id="pay-date" required>
         </div>
 
-        <div class="form-group">
-          <label for="pay-officer">Logged By (Officer Name/ID) *</label>
-          <input type="text" id="pay-officer" required placeholder="e.g. Treasurer John">
-        </div>
-
         <div id="duplicate-warning" class="warning-box hidden">
-          <strong>⚠️ Duplicate Payment Warning</strong>
+          <strong>⚠️ Duplicate Payment Detected</strong>
           <p id="duplicate-warning-text"></p>
           <label class="checkbox-label">
-            <input type="checkbox" id="confirm-duplicate-checkbox"> I understand this is an additional payment for the same month and wish to proceed.
+            <input type="checkbox" id="confirm-duplicate-checkbox"> I confirm this is an intentional additional payment for the same month.
           </label>
         </div>
 

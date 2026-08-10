@@ -3,9 +3,12 @@
 
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const db = require('./db');
+const authRoutes = require('./routes/auth');
 const officerRoutes = require('./routes/officer');
+const { requireOfficerAuth } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,11 +16,25 @@ const PORT = process.env.PORT || 3000;
 // Body parsing middleware (JSON payloads)
 app.use(express.json());
 
+// Session management middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'kontributrack_secret_key_fallback',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true
+  }
+}));
+
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mount Officer/Treasurer routes under /api/officer namespace
-app.use('/api/officer', officerRoutes);
+// Mount Auth routes (Login, Logout, Session check)
+app.use('/api/auth', authRoutes);
+
+// Mount Officer/Treasurer routes under /api/officer namespace (Protected by Auth Guard)
+app.use('/api/officer', requireOfficerAuth, officerRoutes);
 
 // Root route fallback -> index.html
 app.get('/', (req, res) => {

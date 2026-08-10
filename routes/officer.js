@@ -1,5 +1,5 @@
-// routes/officer.js - Officer API routes for KontribuTrack (MySQL version)
-// Includes routes for adding members, logging payments, and fetching dashboard status.
+// routes/officer.js - Officer API routes for KontribuTrack (Protected by Session Auth)
+// All routes require officer authentication via requireOfficerAuth middleware.
 
 const express = require('express');
 const router = express.Router();
@@ -9,7 +9,6 @@ const bcrypt = require('bcryptjs');
 /**
  * ROUTE 1: GET /api/officer/members
  * Purpose: Fetch all members along with their current-month payment status.
- * Uses MySQL DATE_FORMAT(p.date_paid, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
  */
 router.get('/members', async (req, res) => {
   try {
@@ -85,10 +84,14 @@ router.post('/members', async (req, res) => {
 /**
  * ROUTE 3: POST /api/officer/payments
  * Purpose: Logs a payment for a member with duplicate payment prevention.
+ * NOTE: logged_by is automatically set from the authenticated officer's session!
  */
 router.post('/payments', async (req, res) => {
   try {
-    const { member_id, amount, date_paid, logged_by, allow_duplicate } = req.body;
+    const { member_id, amount, date_paid, allow_duplicate } = req.body;
+
+    // Retrieve logged_by identity directly from session (non-negotiable security requirement)
+    const logged_by = req.session.officer ? req.session.officer.name : 'Officer';
 
     if (!member_id) {
       return res.status(400).json({ error: 'Audit trail error: member_id is required.' });
@@ -98,9 +101,6 @@ router.post('/payments', async (req, res) => {
     }
     if (!date_paid || date_paid.trim() === '') {
       return res.status(400).json({ error: 'Audit trail error: date_paid is required.' });
-    }
-    if (!logged_by || logged_by.trim() === '') {
-      return res.status(400).json({ error: 'Audit trail error: logged_by (officer identifier) is required.' });
     }
 
     const member = await db.get('SELECT * FROM members WHERE id = ?', [member_id]);
@@ -133,7 +133,7 @@ router.post('/payments', async (req, res) => {
       member_id,
       Number(amount),
       date_paid,
-      logged_by.trim(),
+      logged_by,
       timestamp
     ]);
 
@@ -148,7 +148,7 @@ router.post('/payments', async (req, res) => {
         member_name: member.name,
         amount: Number(amount),
         date_paid,
-        logged_by: logged_by.trim(),
+        logged_by,
         timestamp
       }
     });
