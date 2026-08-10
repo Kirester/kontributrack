@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables (credentials)
+.env
+
+# SQLite local databases (if any)
+*.db
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KontribuTrack - Treasurer and Officer Dashboard for managing member contributions and payment status.">
+  <title>KontribuTrack — Officer Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-container">
+      <div class="logo-group">
+        <div class="logo-icon">₱</div>
+        <div>
+          <h1>KontribuTrack</h1>
+          <p class="subtitle">Officer & Treasurer Dashboard</p>
+        </div>
+      </div>
+      <div class="officer-badge">
+        <span class="dot"></span> Logged as Officer
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- Top Stats Banner -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Members</span>
+        <span class="stat-value" id="stat-total-members">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Paid This Month</span>
+        <span class="stat-value text-success" id="stat-paid-count">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Unpaid This Month</span>
+        <span class="stat-value text-danger" id="stat-unpaid-count">0</span>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Form Card: Add Member -->
+      <section class="card form-card">
+        <h2>Add New Member</h2>
+        <form id="add-member-form">
+          <div class="form-group">
+            <label for="member-name">Full Name *</label>
+            <input type="text" id="member-name" required placeholder="e.g. Maria Santos">
+          </div>
+
+          <div class="form-group">
+            <label for="contact-number">Contact Number</label>
+            <input type="text" id="contact-number" placeholder="e.g. 09171234567">
+          </div>
+
+          <div class="form-group">
+            <label for="monthly-due">Monthly Due (₱) *</label>
+            <input type="number" id="monthly-due" min="1" step="0.01" value="100.00" required>
+          </div>
+
+          <div class="form-group">
+            <label for="member-pin">Self-Check PIN (4+ digits) *</label>
+            <input type="password" id="member-pin" required minlength="4" placeholder="••••">
+            <small class="help-text">Stored securely with bcrypt hash</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btn-add-member">
+            + Add Member
+          </button>
+        </form>
+        <div id="add-member-msg" class="alert-msg"></div>
+      </section>
+
+      <!-- Table Card: Members & Payment Status -->
+      <section class="card table-card">
+        <div class="card-header">
+          <h2>Member Roster & Monthly Status</h2>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh">Refresh List</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Member Name</th>
+                <th>Contact</th>
+                <th>Monthly Due</th>
+                <th>Current Month Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="members-table-body">
+              <tr>
+                <td colspan="6" class="text-center loading-text">Loading members...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal for Logging Payment -->
+  <div class="modal-overlay" id="payment-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Log Payment</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <form id="payment-form">
+        <input type="hidden" id="pay-member-id">
+
+        <div class="form-group">
+          <label>Member</label>
+          <input type="text" id="pay-member-name" readonly class="input-readonly">
+        </div>
+
+        <div class="form-group">
+          <label for="pay-amount">Amount (₱) *</label>
+          <input type="number" id="pay-amount" required step="0.01" min="1">
+        </div>
+
+        <div class="form-group">
+          <label for="pay-date">Date Paid *</label>
+          <input type="date" id="pay-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="pay-officer">Logged By (Officer Name/ID) *</label>
+          <input type="text" id="pay-officer" required placeholder="e.g. Treasurer John">
+        </div>
+
+        <div id="duplicate-warning" class="warning-box hidden">
+          <strong>⚠️ Duplicate Payment Warning</strong>
+          <p id="duplicate-warning-text"></p>
+          <label class="checkbox-label">
+            <input type="checkbox" id="confirm-duplicate-checkbox"> I understand this is an additional payment for the same month and wish to proceed.
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-payment">Save Payment Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

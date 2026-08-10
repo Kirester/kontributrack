@@ -1,0 +1,17 @@
+{
+  "name": "kontributrack",
+  "version": "1.0.0",
+  "description": "Officer dashboard and member payment tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "mysql2": "^3.23.3",
+    "sql.js": "^1.12.0"
+  }
+}
