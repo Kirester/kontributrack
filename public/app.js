@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const officerNameDisplay = document.getElementById('officer-name-display');
   const btnLogout = document.getElementById('btn-logout');
 
-  // Modal Elements
+  // Payment Modal Elements
   const paymentModal = document.getElementById('payment-modal');
   const paymentForm = document.getElementById('payment-form');
   const payMemberId = document.getElementById('pay-member-id');
@@ -28,6 +28,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+  // QR Modal Elements
+  const qrModal = document.getElementById('qr-modal');
+  const qrModalTitle = document.getElementById('qr-modal-title');
+  const qrImg = document.getElementById('qr-img');
+  const qrUrlText = document.getElementById('qr-url-text');
+  const qrModalCloseBtn = document.getElementById('qr-modal-close-btn');
+  const qrModalCloseBottom = document.getElementById('qr-modal-close-bottom');
 
   // 1. Verify Officer Session on Load
   try {
@@ -59,6 +67,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   modalCloseBtn.addEventListener('click', closeModal);
   modalCancelBtn.addEventListener('click', closeModal);
 
+  qrModalCloseBtn.addEventListener('click', closeQrModal);
+  qrModalCloseBottom.addEventListener('click', closeQrModal);
+
   /**
    * Handle Officer Logout
    */
@@ -77,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   async function loadMembers() {
     try {
-      membersTableBody.innerHTML = '<tr><td colspan="6" class="text-center loading-text">Loading member records...</td></tr>';
+      membersTableBody.innerHTML = '<tr><td colspan="7" class="text-center loading-text">Loading member records...</td></tr>';
       
       const response = await fetch('/api/officer/members');
       const data = await response.json();
@@ -94,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderMembersTable(data.members || []);
     } catch (err) {
       console.error('[Error loading members]:', err);
-      membersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading data: ${err.message}</td></tr>`;
+      membersTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading data: ${err.message}</td></tr>`;
     }
   }
 
@@ -103,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   function renderMembersTable(members) {
     if (members.length === 0) {
-      membersTableBody.innerHTML = '<tr><td colspan="6" class="text-center loading-text">No members registered yet. Register a member to get started.</td></tr>';
+      membersTableBody.innerHTML = '<tr><td colspan="7" class="text-center loading-text">No members registered yet. Register a member to get started.</td></tr>';
       statTotalMembers.textContent = '0';
       statPaidCount.textContent = '0';
       statUnpaidCount.textContent = '0';
@@ -129,6 +140,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           <td>₱${Number(m.monthly_due).toFixed(2)}</td>
           <td>${statusBadge}</td>
           <td>
+            <button class="btn btn-secondary btn-sm btn-qr-code" 
+                    data-id="${m.id}" 
+                    data-name="${escapeHtml(m.name)}">
+              📱 QR Code
+            </button>
+          </td>
+          <td>
             <button class="btn btn-secondary btn-sm btn-log-pay" 
                     data-id="${m.id}" 
                     data-name="${escapeHtml(m.name)}" 
@@ -153,6 +171,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         openPaymentModal(btn.dataset.id, btn.dataset.name, btn.dataset.due);
       });
     });
+
+    // Attach click listeners to "QR Code" buttons
+    document.querySelectorAll('.btn-qr-code').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openQrModal(btn.dataset.id, btn.dataset.name);
+      });
+    });
+  }
+
+  /**
+   * Open QR Code Modal for a member
+   */
+  function openQrModal(id, name) {
+    const fullCheckUrl = `${window.location.origin}/check-status.html?id=${id}`;
+    qrModalTitle.textContent = `QR Code: ${name}`;
+    qrUrlText.textContent = fullCheckUrl;
+
+    // Generate QR Code Data URL using QRCode library
+    if (window.QRCode && typeof window.QRCode.toDataURL === 'function') {
+      window.QRCode.toDataURL(fullCheckUrl, { width: 220, margin: 1 }, (err, url) => {
+        if (!err) {
+          qrImg.src = url;
+        } else {
+          console.error('QR code generation error:', err);
+        }
+      });
+    } else {
+      // Fallback API if CDN fails
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullCheckUrl)}`;
+    }
+
+    qrModal.classList.add('active');
+  }
+
+  function closeQrModal() {
+    qrModal.classList.remove('active');
   }
 
   /**
@@ -216,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Handle Log Payment submission (logged_by comes directly from officer session!)
+   * Handle Log Payment submission
    */
   async function handleLogPayment(e) {
     e.preventDefault();

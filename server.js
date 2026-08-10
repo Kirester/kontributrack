@@ -8,6 +8,7 @@ const path = require('path');
 const db = require('./db');
 const authRoutes = require('./routes/auth');
 const officerRoutes = require('./routes/officer');
+const memberRoutes = require('./routes/member');
 const { requireOfficerAuth } = require('./middleware/auth');
 
 const app = express();
@@ -32,6 +33,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount Auth routes (Login, Logout, Session check)
 app.use('/api/auth', authRoutes);
+
+// Mount Public Member Self-Check routes (UNPROTECTED, NO OFFICER SESSION REQUIRED)
+app.use('/api/member', memberRoutes);
 
 // Mount Officer/Treasurer routes under /api/officer namespace (Protected by Auth Guard)
 app.use('/api/officer', requireOfficerAuth, officerRoutes);

@@ -336,10 +336,10 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.65rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .status-badge.paid {
@@ -605,4 +605,122 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+/* =================================================== */
+/* MEMBER SELF-CHECK PAGE STYLING                      */
+/* =================================================== */
+
+.member-check-body {
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.member-check-container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.member-check-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 2.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.member-check-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.member-check-header .brand-title {
+  font-size: 1.8rem;
+  color: var(--accent-color);
+}
+
+.member-check-header .brand-subtitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.2rem;
+}
+
+.member-check-header .tagline {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+
+.status-result-card {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.result-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 0.6rem;
+}
+
+.result-details {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.result-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+}
+
+.result-detail-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.qr-code-img {
+  width: 200px;
+  height: 200px;
+  display: block;
+  margin: 1rem auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px;
+  background: #ffffff;
+}
+
+.qr-url-text {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-all;
+  margin-top: 0.5rem;
 }

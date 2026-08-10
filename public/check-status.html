@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="KontribuTrack - Member Payment Self-Check Portal">
+  <title>KontribuTrack — Member Self-Check</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="member-check-body">
+  <main class="member-check-container">
+    <div class="member-check-card">
+      <div class="member-check-header">
+        <h1 class="brand-title">KontribuTrack</h1>
+        <p class="brand-subtitle">Member Payment Self-Check</p>
+        <small class="tagline">Tingnan ang status ng iyong ambag para sa kasalukuyang buwan</small>
+      </div>
+
+      <form id="check-status-form" class="check-status-form">
+        <div class="form-group">
+          <label for="member-id-input">Member ID Number *</label>
+          <input type="number" id="member-id-input" required min="1" placeholder="e.g. 1" class="input-lg" autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="pin-input">Self-Check PIN (4+ digits) *</label>
+          <input type="password" id="pin-input" required minlength="4" placeholder="••••" class="input-lg">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-check-status">
+          Check Payment Status
+        </button>
+      </form>
+
+      <div id="check-alert" class="alert-msg"></div>
+
+      <!-- Result Card Container -->
+      <div id="result-card" class="status-result-card hidden">
+        <div class="result-header">
+          <span id="result-badge" class="status-badge"></span>
+          <h3 id="result-member-name" class="result-name"></h3>
+        </div>
+
+        <div class="result-details">
+          <div class="result-detail-item">
+            <span class="detail-label">Monthly Due Amount</span>
+            <span class="detail-value" id="result-monthly-due">₱0.00</span>
+          </div>
+          <div class="result-detail-item">
+            <span class="detail-label">Last Recorded Payment</span>
+            <span class="detail-value" id="result-last-payment">None</span>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary btn-block" id="btn-check-another">
+          Check Another ID
+        </button>
+      </div>
+
+      <footer class="login-footer">
+        <p>KontribuTrack — Transparent Community Financial Tracking</p>
+      </footer>
+    </div>
+  </main>
+
+  <script src="check-status.js"></script>
+</body>
+</html>
