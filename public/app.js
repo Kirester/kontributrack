@@ -224,12 +224,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Handle Add Member form submission
+   * Handle Add Member form submission (Disables submit button to prevent double-click duplicates)
    */
   async function handleAddMember(e) {
     e.preventDefault();
     addMemberMsg.className = 'alert-msg';
     addMemberMsg.textContent = '';
+
+    const btnAddMember = document.getElementById('btn-add-member');
+    btnAddMember.disabled = true;
+    btnAddMember.textContent = 'Registering...';
 
     const memberData = {
       name: document.getElementById('member-name').value,
@@ -260,6 +264,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
       addMemberMsg.className = 'alert-msg error';
       addMemberMsg.textContent = err.message;
+    } finally {
+      btnAddMember.disabled = false;
+      btnAddMember.textContent = '+ Register Member';
     }
   }
 
@@ -284,10 +291,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Handle Log Payment submission
+   * Handle Log Payment submission (Disables submit button to prevent double-click duplicates)
    */
   async function handleLogPayment(e) {
     e.preventDefault();
+
+    const btnSavePayment = document.getElementById('btn-save-payment');
+    btnSavePayment.disabled = true;
+    btnSavePayment.textContent = 'Saving...';
 
     const paymentPayload = {
       member_id: parseInt(payMemberId.value, 10),
@@ -319,6 +330,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadMembers();
     } catch (err) {
       alert(`Error logging payment: ${err.message}`);
+    } finally {
+      btnSavePayment.disabled = false;
+      btnSavePayment.textContent = 'Save Payment Record';
     }
   }
 
