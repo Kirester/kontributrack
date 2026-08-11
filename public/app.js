@@ -181,10 +181,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Open QR Code Modal for a member
+   * Open QR Code Modal for a member using server configured IP / APP_URL
    */
-  function openQrModal(id, name) {
-    const fullCheckUrl = `${window.location.origin}/check-status.html?id=${id}`;
+  async function openQrModal(id, name) {
+    let baseUrl = window.location.origin;
+
+    try {
+      const configRes = await fetch('/api/config');
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        if (configData.app_url) {
+          baseUrl = configData.app_url;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch /api/config, using window.location.origin');
+    }
+
+    const fullCheckUrl = `${baseUrl}/check-status.html?id=${id}`;
     qrModalTitle.textContent = `QR Code: ${name}`;
     qrUrlText.textContent = fullCheckUrl;
 
