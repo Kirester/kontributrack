@@ -29,17 +29,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalCancelBtn = document.getElementById('modal-cancel-btn');
 
-  // QR Modal Elements
+  // QR Modal & Printing Elements
   const qrModal = document.getElementById('qr-modal');
   const qrModalTitle = document.getElementById('qr-modal-title');
   const qrImg = document.getElementById('qr-img');
   const qrUrlText = document.getElementById('qr-url-text');
   const qrModalCloseBtn = document.getElementById('qr-modal-close-btn');
   const qrModalCloseBottom = document.getElementById('qr-modal-close-bottom');
+  const btnPrintQrModal = document.getElementById('btn-print-qr-modal');
+  const btnPrintAllCards = document.getElementById('btn-print-all-cards');
+  const printArea = document.getElementById('print-area');
+
+  // Local memory store for current members roster and active modal member
+  let cachedMembers = [];
+  let currentModalMember = { id: null, name: '' };
 
   // 1. Verify Officer Session on Load
   try {
-    const authRes = await fetch('/api/auth/me');
+    const authRes = await fetch('/api/auth/me', {
+      credentials: 'same-origin',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     const authData = await authRes.json();
 
     if (!authData.loggedIn) {
@@ -69,6 +79,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   qrModalCloseBtn.addEventListener('click', closeQrModal);
   qrModalCloseBottom.addEventListener('click', closeQrModal);
+
+  btnPrintQrModal.addEventListener('click', printSingleCard);
+  btnPrintAllCards.addEventListener('click', printAllCards);
 
   /**
    * Handle Officer Logout
@@ -102,7 +115,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw new Error(data.error || 'Failed to load members');
       }
 
-      renderMembersTable(data.members || []);
+      cachedMembers = data.members || [];
+      renderMembersTable(cachedMembers);
     } catch (err) {
       console.error('[Error loading members]:', err);
       membersTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading data: ${err.message}</td></tr>`;
@@ -181,11 +195,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /**
-   * Open QR Code Modal for a member using server configured IP / APP_URL
+   * Helper: Resolve base server URL (e.g. dynamic local IP / APP_URL)
    */
-  async function openQrModal(id, name) {
+  async function getAppBaseUrl() {
     let baseUrl = window.location.origin;
-
     try {
       const configRes = await fetch('/api/config');
       if (configRes.ok) {
@@ -197,30 +210,161 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
       console.warn('Could not fetch /api/config, using window.location.origin');
     }
+    return baseUrl;
+  }
 
+  /**
+   * Helper: Asynchronously generate a base64 QR Data URL (uses Node server endpoint first, fallback to client JS lib)
+   */
+  async function generateQrDataUrl(text) {
+    // 1. Try backend node endpoint (100% offline capable base64 PNG)
+    try {
+      const res = await fetch(`/api/qr?text=${encodeURIComponent(text)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.dataUrl) return data.dataUrl;
+      }
+    } catch (e) {
+      console.warn('Server QR fetch fallback:', e);
+    }
+
+    // 2. Fallback to client-side QRCode library
+    return new Promise((resolve) => {
+      if (window.QRCode && typeof window.QRCode.toDataURL === 'function') {
+        window.QRCode.toDataURL(text, { width: 260, margin: 1 }, (err, url) => {
+          if (!err && url) resolve(url);
+          else resolve(`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(text)}`);
+        });
+      } else {
+        resolve(`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(text)}`);
+      }
+    });
+  }
+
+  /**
+   * Helper: Wait for all QR images in printArea container to fully decode and load before triggering print dialog
+   */
+  async function waitForPrintImages(container) {
+    const images = Array.from(container.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+      if (img.complete && img.naturalWidth !== 0) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+    // 150ms buffer for browser paint engine to render bitmap layer before print dialog freezes UI
+    await new Promise(resolve => setTimeout(resolve, 150));
+  }
+
+  /**
+   * Helper: Generate card HTML string for a member ID card
+   */
+  function createPrintableCardHtml(member, qrUrl, fullCheckUrl) {
+    return `
+      <div class="printable-card">
+        <div class="card-brand">
+          <span class="card-brand-title">KontribuTrack</span>
+          <span class="card-brand-sub">Official Member Card</span>
+        </div>
+        <div class="card-member-info">
+          <h4 class="member-card-name">${escapeHtml(member.name)}</h4>
+          <div class="member-card-id">Member ID: #${member.id}</div>
+        </div>
+        <div class="card-qr-box">
+          <img class="qr-code-img" src="${qrUrl}" alt="Member Self-Check QR Code">
+        </div>
+        <div class="qr-url-text">${escapeHtml(fullCheckUrl)}</div>
+        <div class="card-instructions">
+          📱 Scan with any phone camera to verify payment status
+        </div>
+        <div class="card-footer-note">
+          🔒 Verification PIN required when checking status
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Open QR Code Modal for a member using server configured IP / APP_URL
+   */
+  async function openQrModal(id, name) {
+    currentModalMember = { id, name };
+    const baseUrl = await getAppBaseUrl();
     const fullCheckUrl = `${baseUrl}/check-status.html?id=${id}`;
-    qrModalTitle.textContent = `QR Code: ${name}`;
+
+    qrModalTitle.textContent = `Member QR Card: ${name}`;
+    document.getElementById('qr-card-member-name').textContent = name;
+    document.getElementById('qr-card-member-id').textContent = `Member ID: #${id}`;
     qrUrlText.textContent = fullCheckUrl;
 
-    // Generate QR Code Data URL using QRCode library
-    if (window.QRCode && typeof window.QRCode.toDataURL === 'function') {
-      window.QRCode.toDataURL(fullCheckUrl, { width: 220, margin: 1 }, (err, url) => {
-        if (!err) {
-          qrImg.src = url;
-        } else {
-          console.error('QR code generation error:', err);
-        }
-      });
-    } else {
-      // Fallback API if CDN fails
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullCheckUrl)}`;
-    }
+    const qrDataUrl = await generateQrDataUrl(fullCheckUrl);
+    qrImg.src = qrDataUrl;
 
     qrModal.classList.add('active');
   }
 
   function closeQrModal() {
     qrModal.classList.remove('active');
+  }
+
+  /**
+   * Print single physical QR card for a specific member ID & Name directly
+   */
+  async function printSingleCardForMember(id, name) {
+    const baseUrl = await getAppBaseUrl();
+    const fullCheckUrl = `${baseUrl}/check-status.html?id=${id}`;
+    const qrDataUrl = await generateQrDataUrl(fullCheckUrl);
+
+    const cardHtml = createPrintableCardHtml({ id, name }, qrDataUrl, fullCheckUrl);
+
+    printArea.innerHTML = `<div class="print-grid single-card-grid">${cardHtml}</div>`;
+    await waitForPrintImages(printArea);
+    window.print();
+  }
+
+  /**
+   * Print single member QR card from active modal
+   */
+  async function printSingleCard() {
+    if (!currentModalMember.id) return;
+    await printSingleCardForMember(currentModalMember.id, currentModalMember.name);
+  }
+
+  /**
+   * Print batch physical QR cards for all members in the roster
+   */
+  async function printAllCards() {
+    if (!cachedMembers || cachedMembers.length === 0) {
+      alert('No members available to print cards.');
+      return;
+    }
+
+    const btnPrintAll = document.getElementById('btn-print-all-cards');
+    const originalText = btnPrintAll.textContent;
+    btnPrintAll.disabled = true;
+    btnPrintAll.textContent = 'Preparing Cards...';
+
+    try {
+      const baseUrl = await getAppBaseUrl();
+      const cardsHtmlArray = [];
+
+      for (const m of cachedMembers) {
+        const fullCheckUrl = `${baseUrl}/check-status.html?id=${m.id}`;
+        const qrDataUrl = await generateQrDataUrl(fullCheckUrl);
+        cardsHtmlArray.push(createPrintableCardHtml(m, qrDataUrl, fullCheckUrl));
+      }
+
+      printArea.innerHTML = `<div class="print-grid">${cardsHtmlArray.join('')}</div>`;
+      await waitForPrintImages(printArea);
+      window.print();
+    } catch (err) {
+      console.error('Error rendering printable cards:', err);
+      alert('Failed to generate printable cards.');
+    } finally {
+      btnPrintAll.disabled = false;
+      btnPrintAll.textContent = originalText;
+    }
   }
 
   /**

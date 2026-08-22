@@ -6,13 +6,27 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcryptjs');
+const rateLimit = require('express-rate-limit');
+
+// Rate limiter middleware specifically for Member Self-Check:
+// Limits requests to 5 attempts per 15 minutes per IP address to prevent brute-force attacks.
+// Returns HTTP 429 status code with a clear error message when exceeded.
+const checkStatusLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15-minute sliding window
+  max: 5, // Maximum 5 attempts per IP address per 15 minutes
+  message: { error: 'Too many attempts, please try again later.' }, // 429 JSON response payload
+  statusCode: 429,
+  standardHeaders: true, // Draft-6/Draft-7 RateLimit headers
+  legacyHeaders: false // Suppress X-RateLimit headers
+});
 
 /**
  * ROUTE: POST /api/member/check-status
  * Purpose: Allows a member to check their current-month contribution status using their Member ID and PIN.
  * Anti-Enumeration Rule: If member ID is invalid OR PIN is wrong, returns the EXACT SAME generic error message.
+ * Rate Limiting: Protected by checkStatusLimiter (max 5 requests per 15 minutes per IP).
  */
-router.post('/check-status', async (req, res) => {
+router.post('/check-status', checkStatusLimiter, async (req, res) => {
   const genericErrorMessage = 'Invalid Member ID or PIN.';
 
   try {

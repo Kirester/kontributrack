@@ -35,23 +35,30 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid username or password.' });
     }
 
-    // Establish session
+    // Establish session and ensure it is saved before returning HTTP response
     req.session.officer = {
       id: officer.id,
       username: officer.username,
       name: officer.name
     };
 
-    console.log(`[AUTH] Officer "${officer.name}" (${officer.username}) logged in successfully.`);
-
-    return res.json({
-      success: true,
-      message: 'Login successful.',
-      officer: {
-        id: officer.id,
-        username: officer.username,
-        name: officer.name
+    req.session.save((err) => {
+      if (err) {
+        console.error('[Error saving session]:', err);
+        return res.status(500).json({ error: 'Failed to establish session.' });
       }
+
+      console.log(`[AUTH] Officer "${officer.name}" (${officer.username}) logged in successfully.`);
+
+      return res.json({
+        success: true,
+        message: 'Login successful.',
+        officer: {
+          id: officer.id,
+          username: officer.username,
+          name: officer.name
+        }
+      });
     });
   } catch (err) {
     console.error('[Error during login]:', err);

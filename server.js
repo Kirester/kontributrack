@@ -22,6 +22,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 
 const app = express();
+app.set('trust proxy', 1); // Trust reverse proxies (e.g. Cloudflare / trycloudflare tunnel)
 const PORT = process.env.PORT || 3000;
 
 // Body parsing middleware (JSON payloads)
@@ -32,32 +33,41 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'kontributrack_secret_key_fallback',
   resave: false,
   saveUninitialized: false,
+  proxy: true,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: true
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
 // Helper: Auto-detect machine's IPv4 local network IP address
 function getLocalNetworkIp() {
   const interfaces = os.networkInterfaces();
+  let candidateIp = null;
   for (const name of Object.keys(interfaces)) {
     const lowerName = name.toLowerCase();
-    // Skip virtual interfaces (WSL, Hyper-V, VirtualBox, Docker)
-    if (lowerName.includes('wsl') || lowerName.includes('vbox') || lowerName.includes('virtual') || lowerName.includes('vethernet')) {
+    // Skip virtual interfaces (WSL, Hyper-V, VirtualBox, VMware, Docker)
+    if (lowerName.includes('wsl') || lowerName.includes('vbox') || lowerName.includes('virtual') || lowerName.includes('vethernet') || lowerName.includes('vmware') || lowerName.includes('host-only')) {
       continue;
     }
     for (const iface of interfaces[name]) {
       if (iface.family === 'IPv4' && !iface.internal) {
-        return iface.address;
+        if (iface.address.startsWith('192.168.56.')) continue; // Skip VirtualBox Host-Only subnet
+        if (lowerName.includes('wi-fi') || lowerName.includes('wifi') || lowerName.includes('wireless')) {
+          return iface.address;
+        }
+        if (!candidateIp) candidateIp = iface.address;
       }
     }
   }
-  return '127.0.0.1';
+  return candidateIp || '127.0.0.1';
 }
 
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+
+const QRCode = require('qrcode');
 
 // Public Configuration endpoint for QR code base URL resolution
 app.get('/api/config', (req, res) => {
@@ -72,6 +82,21 @@ app.get('/api/config', (req, res) => {
     detected_ip: detectedIp,
     port: PORT
   });
+});
+
+// Server-side QR Code Generation Endpoint (Offline capable base64 PNG data URL)
+app.get('/api/qr', async (req, res) => {
+  try {
+    const text = req.query.text;
+    if (!text) {
+      return res.status(400).json({ error: 'Text query parameter is required.' });
+    }
+    const dataUrl = await QRCode.toDataURL(text, { width: 300, margin: 1 });
+    res.json({ success: true, dataUrl });
+  } catch (err) {
+    console.error('Server QR generation error:', err);
+    res.status(500).json({ error: 'Failed to generate QR code.' });
+  }
 });
 
 // Mount Auth routes (Login, Logout, Session check)

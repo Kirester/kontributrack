@@ -27,7 +27,15 @@
 
         <div class="form-group">
           <label for="pin-input">Self-Check PIN (4+ digits) *</label>
-          <input type="password" id="pin-input" required minlength="4" placeholder="••••" class="input-lg">
+          <div class="pin-input-group">
+            <input type="password" id="pin-input" required minlength="4" placeholder="••••" class="input-lg">
+            <button type="button" id="btn-toggle-pin" class="btn-toggle-pin" aria-label="Show PIN" title="Show PIN">
+              <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-check-status">
@@ -60,9 +68,6 @@
         </button>
       </div>
 
-      <footer class="login-footer">
-        <p>KontribuTrack — Transparent Community Financial Tracking</p>
-      </footer>
     </div>
   </main>
 

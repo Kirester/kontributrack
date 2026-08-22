@@ -9,7 +9,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Check if officer is already logged in
   try {
-    const res = await fetch('/api/auth/me');
+    const res = await fetch('/api/auth/me', {
+      credentials: 'same-origin',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     const data = await res.json();
     if (data.loggedIn) {
       window.location.href = '/index.html';
@@ -35,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify(credentials)
       });
 

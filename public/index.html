@@ -87,7 +87,10 @@
       <section class="card table-card">
         <div class="card-header">
           <h2 class="card-title">Member Roster & Monthly Dues</h2>
-          <button class="btn btn-secondary btn-sm" id="btn-refresh">Refresh Roster</button>
+          <div class="card-header-actions">
+            <button class="btn btn-secondary btn-sm" id="btn-print-all-cards">🖨️ Print All Cards</button>
+            <button class="btn btn-secondary btn-sm" id="btn-refresh">Refresh Roster</button>
+          </div>
         </div>
 
         <div class="table-responsive">
@@ -157,21 +160,43 @@
 
   <!-- QR Code Modal -->
   <div class="modal-overlay" id="qr-modal">
-    <div class="modal-card">
+    <div class="modal-card qr-modal-card">
       <div class="modal-header">
         <h3 id="qr-modal-title">Member Self-Check QR Code</h3>
         <button class="modal-close" id="qr-modal-close-btn">&times;</button>
       </div>
-      <div class="text-center">
-        <p>Scan with any phone camera to check payment status:</p>
-        <img id="qr-img" class="qr-code-img" alt="Member Self-Check QR Code">
+      
+      <!-- Printable Card Preview inside Modal -->
+      <div class="printable-card" id="modal-printable-card">
+        <div class="card-brand">
+          <span class="card-brand-title">KontribuTrack</span>
+          <span class="card-brand-sub">Official Member Card</span>
+        </div>
+        <div class="card-member-info">
+          <h4 id="qr-card-member-name" class="member-card-name">Member Name</h4>
+          <div id="qr-card-member-id" class="member-card-id">Member ID: #0</div>
+        </div>
+        <div class="card-qr-box">
+          <img id="qr-img" class="qr-code-img" alt="Member Self-Check QR Code">
+        </div>
         <div id="qr-url-text" class="qr-url-text"></div>
+        <div class="card-instructions">
+          📱 Scan with any phone camera to verify payment status
+        </div>
+        <div class="card-footer-note">
+          🔒 Verification PIN required when checking status
+        </div>
       </div>
+
       <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="btn-print-qr-modal">🖨️ Print Member Card</button>
         <button type="button" class="btn btn-secondary" id="qr-modal-close-bottom">Close</button>
       </div>
     </div>
   </div>
+
+  <!-- Container dedicated for @media print rendering -->
+  <div id="print-area" class="print-area"></div>
 
   <script src="app.js"></script>
 </body>

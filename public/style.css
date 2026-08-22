@@ -191,6 +191,12 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
   margin-bottom: 1.1rem;
 }
 
+.card-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .card-header .card-title {
   margin-bottom: 0;
 }
@@ -609,7 +615,7 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
 }
 
 /* =================================================== */
-/* MEMBER SELF-CHECK PAGE STYLING                      */
+/* MEMBER SELF-CHECK PAGE STYLING (ACCESSIBLE 18px+)   */
 /* =================================================== */
 
 .member-check-body {
@@ -619,76 +625,173 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
   justify-content: center;
   min-height: 100vh;
   padding: 1.5rem;
+  font-size: 1.125rem; /* 18px base text size for accessibility */
 }
 
 .member-check-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px; /* Slightly wider to accommodate larger 18px typography */
 }
 
 .member-check-card {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 2.25rem;
+  padding: 2.5rem 2.25rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
 }
 
 .member-check-header {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .member-check-header .brand-title {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   color: var(--accent-color);
 }
 
 .member-check-header .brand-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-top: 0.2rem;
+  margin-top: 0.3rem;
 }
 
 .member-check-header .tagline {
   display: block;
-  font-size: 0.82rem;
+  font-size: 1rem;
   color: var(--text-secondary);
-  margin-top: 0.3rem;
+  margin-top: 0.4rem;
+  line-height: 1.4;
 }
 
+/* Accessible Form Controls */
+.member-check-card .form-group {
+  margin-bottom: 1.75rem; /* Increased spacing between ID & PIN fields */
+}
+
+.member-check-card label {
+  font-size: 1.125rem; /* 18px label text */
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.member-check-card input.input-lg {
+  height: 56px; /* Large 56px touch target */
+  font-size: 1.125rem; /* 18px input text */
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+}
+
+.member-check-card input.input-lg:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18);
+}
+
+/* PIN Input Group & Toggle Eye Button */
+.pin-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pin-input-group input {
+  width: 100%;
+  padding-right: 3.5rem !important; /* Space for show/hide toggle */
+}
+
+.btn-toggle-pin {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.btn-toggle-pin:hover {
+  color: var(--text-primary);
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.btn-toggle-pin:focus-visible {
+  outline: 2px solid var(--accent-color);
+}
+
+.member-check-card #btn-check-status {
+  height: 56px;
+  font-size: 1.15rem; /* ~18-19px bold button text */
+  font-weight: 700;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(217, 119, 6, 0.25);
+}
+
+/* Fix: Footer positioning prevents overlap with button */
+.member-check-card .login-footer {
+  margin-top: 2.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.member-check-card .login-footer p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Result Card Formatting */
 .status-result-card {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--border-color);
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 2px dashed var(--border-color);
 }
 
 .result-header {
   text-align: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-header .status-badge {
+  font-size: 1rem;
+  padding: 0.45rem 1.1rem;
 }
 
 .result-name {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-top: 0.6rem;
+  margin-top: 0.75rem;
 }
 
 .result-details {
   background: #f8fafc;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.25rem;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .result-detail-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.4rem 0;
+  padding: 0.6rem 0;
 }
 
 .result-detail-item:not(:last-child) {
@@ -696,14 +799,20 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
 }
 
 .detail-label {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--text-secondary);
 }
 
 .detail-value {
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.member-check-card .alert-msg {
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  margin-top: 1.25rem;
 }
 
 .qr-code-img {
@@ -723,5 +832,247 @@ h1, h2, h3, h4, .brand-title, .card-title, .brand-logo {
   color: var(--text-secondary);
   text-align: center;
   word-break: break-all;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Printable Member Physical Card Styling & Print Layouts
+   ========================================================================== */
+
+/* Screen card preview container */
+.qr-modal-card {
+  max-width: 420px;
+}
+
+.printable-card {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  margin: 0.5rem auto 1rem auto;
+  max-width: 340px;
+  transition: transform 0.2s ease;
+}
+
+.card-brand {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.card-brand-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.card-brand-sub {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.card-member-info {
+  margin-bottom: 0.5rem;
+}
+
+.member-card-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.2rem 0;
+}
+
+.member-card-id {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(79, 70, 229, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.card-qr-box .qr-code-img {
+  width: 170px;
+  height: 170px;
+  margin: 0.5rem auto;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.card-instructions {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
   margin-top: 0.5rem;
 }
+
+.card-footer-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+/* Hidden by default on screen */
+.print-area {
+  display: none;
+}
+
+/* ==========================================================================
+   @media print Rules for Physical Card Printing
+   ========================================================================== */
+@media print {
+  /* Hide all dashboard UI, headers, modals, and buttons */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: Arial, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body > *:not(#print-area) {
+    display: none !important;
+  }
+
+  .print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10mm !important;
+  }
+
+  .print-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10mm 8mm !important;
+  }
+
+  .single-card-grid {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+  }
+
+  .printable-card {
+    border: 2px solid #000000 !important;
+    border-radius: 8px !important;
+    padding: 8px 10px !important;
+    width: 85mm !important;
+    min-height: 54mm !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    color: #000000 !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+
+  .printable-card .card-brand {
+    border-bottom: 2px solid #000000 !important;
+    padding-bottom: 2px !important;
+    margin-bottom: 3px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+  }
+
+  .printable-card .card-brand-title {
+    color: #000000 !important;
+    font-size: 0.95rem !important;
+    font-weight: bold !important;
+  }
+
+  .printable-card .card-brand-sub {
+    color: #333333 !important;
+    font-size: 0.65rem !important;
+  }
+
+  .printable-card .member-card-name {
+    font-size: 1.05rem !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    margin: 2px 0 1px 0 !important;
+  }
+
+  .printable-card .member-card-id {
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    color: #000000 !important;
+    background: none !important;
+    padding: 0 !important;
+  }
+
+  .printable-card .card-qr-box {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 3px 0 !important;
+    flex-shrink: 0 !important;
+    min-height: 95px !important;
+  }
+
+  .printable-card .card-qr-box img.qr-code-img {
+    width: 95px !important;
+    height: 95px !important;
+    min-width: 95px !important;
+    min-height: 95px !important;
+    margin: 0 auto !important;
+    padding: 2px !important;
+    border: 1px solid #000000 !important;
+    border-radius: 4px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    object-fit: contain !important;
+  }
+
+  .printable-card .qr-url-text {
+    font-size: 0.58rem !important;
+    color: #333333 !important;
+    margin-top: 1px !important;
+    word-break: break-all !important;
+  }
+
+  .printable-card .card-instructions {
+    font-size: 0.65rem !important;
+    color: #000000 !important;
+    margin-top: 2px !important;
+  }
+
+  .printable-card .card-footer-note {
+    font-size: 0.6rem !important;
+    color: #333333 !important;
+    background: #f0f0f0 !important;
+    padding: 2px 4px !important;
+    border-radius: 4px !important;
+    margin-top: 2px !important;
+  }
+}
+

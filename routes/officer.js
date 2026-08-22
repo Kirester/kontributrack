@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcryptjs');
+const { sendSms } = require('../services/sms');
 
 /**
  * ROUTE 1: GET /api/officer/members
@@ -24,7 +25,7 @@ router.get('/members', async (req, res) => {
       LEFT JOIN payments p ON m.id = p.member_id 
         AND DATE_FORMAT(p.date_paid, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
       GROUP BY m.id, m.name, m.contact_number, m.monthly_due
-      ORDER BY m.name ASC
+      ORDER BY m.id ASC
     `;
 
     const members = await db.all(query);
@@ -137,7 +138,32 @@ router.post('/payments', async (req, res) => {
       timestamp
     ]);
 
-    console.log(`[SMS SIMULATION] Payment of ₱${amount} logged for member "${member.name}" (${member.contact_number || 'No contact'}). Notification sent. Date: ${date_paid}, Logged by: ${logged_by}`);
+    // --- SMS Notification: Send payment confirmation to the member via iProgSMS ---
+    // Debug log kept alongside real SMS call for terminal visibility during testing.
+    console.log(`[SMS] Payment of ₱${amount} logged for member "${member.name}" (${member.contact_number || 'No contact'}). Date: ${date_paid}, Logged by: ${logged_by}`);
+
+    // Derive a human-readable month from date_paid (e.g. "2026-08-12" -> "August 2026")
+    const paymentDate = new Date(date_paid);
+    const monthName = paymentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+    // Only attempt SMS if the member has a phone number on file
+    if (member.contact_number && member.contact_number.trim() !== '') {
+      // Fire-and-forget: await the call but catch errors so SMS failure never blocks
+      // the payment response. The payment is already saved to the DB at this point.
+      const smsMessage = `KontribuTrack: Payment of PHP ${amount} received for ${monthName}. Thank you, ${member.name}.`;
+      sendSms(member.contact_number, smsMessage)
+        .then(result => {
+          if (!result.success) {
+            console.error(`[SMS] Failed to send to ${member.contact_number}: ${result.error}`);
+          }
+        })
+        .catch(err => {
+          // Extra safety net — sendSms already catches internally, but just in case
+          console.error(`[SMS] Unexpected error sending SMS: ${err.message}`);
+        });
+    } else {
+      console.log(`[SMS] Skipped — member "${member.name}" has no contact number on file.`);
+    }
 
     res.status(201).json({
       success: true,
